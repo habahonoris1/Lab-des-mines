@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0f0e">
+<title>MineLab Pro — HabaTech</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ══ THEMES ══ */
+:root,[data-theme="mine"]{--bg:#0d0f0e;--surface:#141714;--surface2:#1b1f1b;--surface3:#222722;--border:#2a332a;--accent:#b8e04a;--accent2:#5be0a0;--accent3:#f0a030;--accent4:#e05050;--text:#d4dcd0;--text2:#8a9e88;--text3:#536050;}
+[data-theme="cobalt"]{--bg:#080c14;--surface:#0e1422;--surface2:#141c2e;--surface3:#1a2438;--border:#1e2e4a;--accent:#4db8ff;--accent2:#38e8c0;--accent3:#ffaa22;--accent4:#ff5566;--text:#c8d8f0;--text2:#5a7ab0;--text3:#2a3a5a;}
+[data-theme="gold"]{--bg:#0c0a06;--surface:#15120a;--surface2:#1e180e;--surface3:#271f12;--border:#362a14;--accent:#d4a017;--accent2:#e8c840;--accent3:#e07020;--accent4:#cc3333;--text:#e8d8b0;--text2:#8a7040;--text3:#504020;}
+[data-theme="slate"]{--bg:#0a0c10;--surface:#111418;--surface2:#181c22;--surface3:#20242c;--border:#282e3a;--accent:#7ab4e8;--accent2:#50d890;--accent3:#e8a030;--accent4:#e04444;--text:#c8d0dc;--text2:#606880;--text3:#38404c;}
+[data-theme="ruby"]{--bg:#0e0808;--surface:#180e0e;--surface2:#211414;--surface3:#2a1a1a;--border:#3a2020;--accent:#ff6b6b;--accent2:#ff9966;--accent3:#ffcc44;--accent4:#cc3366;--text:#f0d0d0;--text2:#906060;--text3:#503030;}
+[data-theme="arctic"]{--bg:#f0f4f8;--surface:#ffffff;--surface2:#e8edf2;--surface3:#dce3ea;--border:#c8d4de;--accent:#0066cc;--accent2:#00aa66;--accent3:#ee8800;--accent4:#cc2222;--text:#1a2634;--text2:#4a6080;--text3:#8aa0b8;}
+:root{--mono:'Share Tech Mono',monospace;--head:'Barlow Condensed',sans-serif;--body:'Barlow',sans-serif;--nav-h:62px;--r:4px;--safe-b:env(safe-area-inset-bottom,0px);}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:32px 24px;width:100%;max-width:400px}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .ll-icon{width:52px;height:52px;background:var(--accent);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);margin:0 auto 12px}
+.login-logo .ll-title{font-family:var(--head);font-size:28px;font-weight:900;letter-spacing:3px;color:var(--accent);text-transform:uppercase}
+.login-logo .ll-sub{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:2px}
+.login-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.login-tab{flex:1;padding:9px;background:none;border:none;color:var(--text2);font-family:var(--head);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.login-tab.active{background:var(--accent);color:var(--bg);font-weight:700}
+.login-error{background:rgba(224,80,80,.12);border:1px solid rgba(224,80,80,.3);color:var(--accent4);font-family:var(--mono);font-size:11px;padding:10px 12px;border-radius:var(--r);margin-bottom:14px;display:none}
+.login-spinner{display:none;text-align:center;padding:12px;font-family:var(--mono);font-size:12px;color:var(--text2)}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── HEADER ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 14px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:200;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-icon{width:24px;height:24px;background:var(--accent);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0}
+.logo-text{font-family:var(--head);font-weight:700;font-size:16px;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
+.logo-sub{font-family:var(--mono);font-size:8px;color:var(--text3)}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.user-chip{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);padding:4px 9px;border-radius:var(--r);cursor:pointer;min-height:34px;touch-action:manipulation}
+.user-avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:12px;font-weight:700;color:var(--bg);flex-shrink:0}
+.user-name{font-family:var(--mono);font-size:10px;color:var(--text2)}
+.role-badge{font-family:var(--mono);font-size:8px;padding:1px 5px;border-radius:2px;text-transform:uppercase;letter-spacing:1px}
+.rb-admin{background:rgba(240,160,48,.15);color:var(--accent3);border:1px solid rgba(240,160,48,.3)}
+.rb-analyste{background:rgba(184,224,74,.1);color:var(--accent);border:1px solid rgba(184,224,74,.2)}
+.rb-technicien{background:rgba(91,224,160,.1);color:var(--accent2);border:1px solid rgba(91,224,160,.2)}
+.icon-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:14px;width:34px;height:34px;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:all .2s;position:relative}
+.icon-btn:hover,.icon-btn:active{border-color:var(--accent)}
+.notif-dot{position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(--accent4);display:none}
+
+/* ── REALTIME INDICATOR ── */
+.rt-pill{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;color:var(--text3);padding:3px 7px;border-radius:var(--r);border:1px solid var(--border)}
+.rt-dot{width:6px;height:6px;border-radius:50%;background:var(--text3)}
+.rt-dot.live{background:var(--accent2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── TOP NAV ── */
+.top-nav{background:var(--surface2);border-bottom:1px solid var(--border);display:none;align-items:center;padding:0 14px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.top-nav::-webkit-scrollbar{display:none}
+.nav-btn{font-family:var(--head);font-weight:600;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);background:none;border:none;padding:11px 12px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;touch-action:manipulation}
+.nav-btn:hover{color:var(--text)}.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-badge{background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:2px;font-weight:bold}
+.nav-btn.locked{opacity:.4;cursor:not-allowed}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:200;padding-bottom:var(--safe-b)}
+.bottom-nav-inner{display:flex;height:var(--nav-h)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;color:var(--text3);font-family:var(--head);font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;touch-action:manipulation;transition:color .2s;position:relative;padding:0 1px}
+.bnav-btn .icon{font-size:15px;line-height:1}
+.bnav-btn.active{color:var(--accent)}
+.bnav-btn.active::before{content:'';position:absolute;top:0;left:15%;right:15%;height:2px;background:var(--accent);border-radius:0 0 2px 2px}
+.bnav-bdg{position:absolute;top:3px;right:calc(50% - 16px);background:var(--accent4);color:#fff;font-size:7px;width:13px;height:13px;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:var(--mono)}
+
+/* ── MAIN ── */
+.app-main{flex:1;padding:13px;display:none;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 13px)}
+.app-main.active{display:block}
+
+/* ── STATS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:13px}
+.stat-box{background:var(--surface2);border:1px solid var(--border);padding:12px 11px;border-radius:var(--r);position:relative;overflow:hidden}
+.stat-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent)}
+.stat-box.orange::before{background:var(--accent3)}.stat-box.green::before{background:var(--accent2)}.stat-box.red::before{background:var(--accent4)}.stat-box.blue::before{background:#4db8ff}
+.stat-val{font-family:var(--mono);font-size:24px;color:var(--text);line-height:1;margin-bottom:3px}
+.stat-label{font-family:var(--head);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:11px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border)}
+.card-title{font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+
+/* ── FORMS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px}
+.field{display:flex;flex-direction:column;gap:5px}
+label{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
+input,select,textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--body);font-size:15px;padding:9px 10px;border-radius:var(--r);outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a9e88'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+select option{background:#1b1f1b}
+textarea{resize:vertical;min-height:65px}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--head);font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 15px;border:none;border-radius:var(--r);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px;touch-action:manipulation;min-height:42px;white-space:nowrap}
+.btn-primary{background:var(--accent);color:var(--bg)}.btn-primary:active{filter:brightness(.9)}
+.btn-secondary{background:var(--surface3);color:var(--text);border:1px solid var(--border)}.btn-secondary:active{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:transparent;color:var(--accent4);border:1px solid var(--accent4)}.btn-danger:active{background:var(--accent4);color:#fff}
+.btn-info{background:transparent;color:var(--accent2);border:1px solid var(--accent2)}
+.btn-sm{padding:6px 10px;font-size:9px;min-height:32px}
+.btn-row{display:flex;gap:7px;flex-direction:column}
+.btn-row .btn{width:100%;justify-content:center}
+
+/* ── SEARCH ── */
+.search-row{display:flex;gap:7px;margin-bottom:11px;flex-direction:column}
+
+/* ── TABLE ── */
+.table-wrap{display:none;overflow-x:auto;border:1px solid var(--border);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:540px}
+thead{background:var(--surface2)}
+th{font-family:var(--head);font-weight:600;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);padding:9px 11px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 11px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+
+/* ── CARD LIST (mobile) ── */
+.card-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:11px;margin-bottom:8px}
+.ci-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.ci-body{display:grid;grid-template-columns:1fr 1fr;gap:7px 11px;margin-bottom:9px}
+.ci-f .lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.ci-f .val{font-size:13px;color:var(--text)}
+.ci-actions{display:flex;gap:5px;flex-wrap:wrap}
+
+/* ── TAGS ── */
+.tag{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:2px;letter-spacing:1px;text-transform:uppercase}
+.tag-or{background:rgba(240,160,48,.15);color:var(--accent3);border:1px solid rgba(240,160,48,.3)}
+.tag-fe{background:rgba(91,224,160,.12);color:var(--accent2);border:1px solid rgba(91,224,160,.2)}
+.tag-cu{background:rgba(184,224,74,.12);color:var(--accent);border:1px solid rgba(184,224,74,.2)}
+.tag-pb{background:rgba(224,80,80,.12);color:var(--accent4);border:1px solid rgba(224,80,80,.2)}
+.tag-zn{background:rgba(120,120,220,.15);color:#a0a0ff;border:1px solid rgba(120,120,220,.25)}
+.status-ok{color:var(--accent2)}.status-warn{color:var(--accent3)}.status-err{color:var(--accent4)}
+.id-tag{font-family:var(--mono);font-size:10px;color:var(--accent);background:rgba(184,224,74,.08);padding:2px 6px;border-radius:2px}
+
+/* ── PROGRESS ── */
+.progress-bar{background:var(--surface3);border-radius:2px;height:5px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .5s}
+.progress-fill.orange{background:var(--accent3)}.progress-fill.red{background:var(--accent4)}
+
+/* ── CHART ── */
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:48px;padding-top:5px}
+.bar{flex:1;background:var(--accent);border-radius:2px 2px 0 0;opacity:.7;min-width:5px}
+.bar.orange{background:var(--accent3)}.bar.green{background:var(--accent2)}
+.svg-chart{width:100%;height:110px}
+.chart-row{display:grid;grid-template-columns:1fr;gap:11px;margin-bottom:11px}
+
+/* ── SEP ── */
+.sep{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin:15px 0 10px;display:flex;align-items:center;gap:9px}
+.sep::after{content:'';flex:1;height:1px;background:var(--border)}
+.empty-state{text-align:center;padding:30px 14px;color:var(--text3);font-family:var(--mono);font-size:11px}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;padding:17px 13px calc(15px + var(--safe-b));width:100%;max-height:92vh;overflow-y:auto}
+.modal-title{font-family:var(--head);font-weight:700;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:15px;padding-bottom:9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0 4px;line-height:1}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(var(--nav-h) + 9px + var(--safe-b));right:9px;left:9px;background:var(--surface);border:1px solid var(--accent);color:var(--text);font-family:var(--mono);font-size:11px;padding:10px 13px;border-radius:var(--r);z-index:999;transform:translateY(70px);opacity:0;transition:all .3s;max-width:400px;margin:0 auto;text-align:center}
+#toast.show{transform:translateY(0);opacity:1}
+
+/* ── JOURNAL ── */
+.jrn-item{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border)}
+.jrn-item:last-child{border-bottom:none}
+.jrn-icon{font-size:14px;flex-shrink:0;width:22px;text-align:center;margin-top:1px}
+.jrn-body .jb-action{font-size:12px;color:var(--text);margin-bottom:1px}
+.jrn-body .jb-user{font-family:var(--mono);font-size:10px;color:var(--accent)}
+.jrn-body .jb-time{font-family:var(--mono);font-size:9px;color:var(--text3)}
+
+/* ── USERS ADMIN ── */
+.user-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.user-row:last-child{border-bottom:none}
+.ua-avatar{width:34px;height:34px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;font-size:14px;color:var(--accent);flex-shrink:0}
+.ua-info{flex:1;min-width:120px}
+.ua-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.ua-email{font-family:var(--mono);font-size:10px;color:var(--text2)}
+
+/* ── EXPORT ROW ── */
+.export-row{display:flex;align-items:center;justify-content:space-between;padding:11px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;gap:10px}
+.export-row .et{font-family:var(--head);font-weight:600;font-size:13px;margin-bottom:2px}
+.export-row .es{font-size:11px;color:var(--text2)}
+
+/* ── THEME ── */
+.theme-panel{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:600;align-items:flex-end;justify-content:center}
+.theme-panel.open{display:flex}
+.theme-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;padding:18px 13px calc(18px + var(--safe-b));width:100%;max-width:600px}
+.theme-inner h3{font-family:var(--head);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.theme-card{border:2px solid transparent;border-radius:var(--r);padding:11px 8px;cursor:pointer;transition:all .2s;text-align:center;position:relative}
+.theme-card:hover{transform:translateY(-2px)}.theme-card.selected::after{content:'✔';position:absolute;top:4px;right:5px;font-size:10px;font-family:var(--mono)}
+.theme-preview{display:flex;gap:3px;justify-content:center;margin-bottom:7px}
+.tp-dot{width:15px;height:15px;border-radius:50%}
+.theme-name{font-family:var(--head);font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.theme-desc{font-family:var(--mono);font-size:8px;margin-top:2px;opacity:.7}
+
+/* ── RESPONSIVE ── */
+@media(min-width:560px){
+  .form-grid{grid-template-columns:repeat(2,1fr)}
+  .search-row{flex-direction:row;flex-wrap:wrap}
+  .search-row input{flex:1;min-width:130px}
+  .search-row select{min-width:120px;flex:1}
+  .btn-row{flex-direction:row;flex-wrap:wrap}
+  .btn-row .btn{width:auto}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:800px){
+  :root{--nav-h:0px}
+  .top-nav{display:flex}
+  .bottom-nav{display:none!important}
+  .app-main{padding:20px 24px;padding-bottom:20px}
+  #toast{bottom:16px;left:auto;right:16px;max-width:290px;text-align:left}
+  .stat-grid{grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}
+  .form-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+  .table-wrap{display:block}
+  .card-list{display:none!important}
+  .chart-row{grid-template-columns:1fr 1fr}
+  .modal-overlay{align-items:center;padding:14px}
+  .modal{border-radius:var(--r);max-width:520px;width:90%;padding:20px}
+  .theme-panel{align-items:center;padding:14px}
+  .theme-inner{border-radius:var(--r);max-width:500px;padding:20px}
+}
+@media(min-width:1200px){
+  header,.top-nav{padding-left:26px;padding-right:26px}
+  .app-main{padding:24px 30px}
+  .form-grid{grid-template-columns:repeat(4,1fr)}
+  .stat-grid{gap:16px}
+}
+@media(max-width:359px){
+  .logo-text{font-size:14px}
+  .stat-val{font-size:20px}
+  .theme-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media print{
+  .bottom-nav,.top-nav,header,.btn,#login-screen,.modal-overlay,.theme-panel{display:none!important}
+  .app-main{display:block!important;padding:0!important}
+  body{background:#fff;color:#000}
+}
+
+/* ── FOOTER (desktop only) ── */
+.dev-footer{display:none;background:var(--surface);border-top:1px solid var(--border);padding:8px 26px;flex-shrink:0}
+.dev-footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.dev-brand{display:flex;align-items:center;gap:10px}
+.dev-brand .db-hex{width:20px;height:20px;background:var(--accent);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0}
+.dev-brand .db-name{font-family:var(--head);font-weight:700;font-size:13px;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
+.dev-brand .db-tag{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px}
+.dev-contact{display:flex;align-items:center;gap:14px}
+.dev-wa{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--accent2);text-decoration:none;padding:5px 10px;border:1px solid rgba(91,224,160,.2);border-radius:var(--r);background:rgba(91,224,160,.05);transition:all .2s}
+.dev-wa:hover{background:rgba(91,224,160,.12);border-color:rgba(91,224,160,.4)}
+.dev-wa .wa-icon{font-size:14px}
+.dev-copy{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px}
+@media(min-width:800px){.dev-footer{display:block}}
+</style>
+</head>
+<body>
+
+<!-- ════════ ÉCRAN DE CONNEXION ════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="ll-icon"></div>
+      <div class="ll-title">MineLab Pro</div>
+      <div class="ll-sub">Système de gestion laboratoire mines</div>
+      <div style="margin-top:14px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);display:inline-flex;align-items:center;gap:8px">
+        <span style="font-size:14px">💬</span>
+        <div style="text-align:left">
+          <div style="font-family:var(--head);font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase">HabaTech</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text2)">+224 627 541 925</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Config Supabase (premier lancement) -->
+    <div id="supa-config-block" style="margin-bottom:18px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r)">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">⚙ Configuration Supabase</div>
+      <div class="field" style="margin-bottom:9px"><label>URL du projet</label><input type="url" id="cfg-url" placeholder="https://xxxxx.supabase.co" autocomplete="off"></div>
+      <div class="field" style="margin-bottom:9px"><label>Clé anon publique</label><input type="password" id="cfg-key" placeholder="eyJhbGc..."></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="saveSupaConfig()">✔ Enregistrer et continuer</button>
+    </div>
+
+    <!-- Formulaires connexion / inscription -->
+    <div id="auth-block" style="display:none">
+      <div class="login-tabs">
+        <button class="login-tab active" id="tab-login" onclick="switchTab('login')">Connexion</button>
+        <button class="login-tab" id="tab-register" onclick="switchTab('register')">Inscription</button>
+      </div>
+      <div id="auth-error" class="login-error"></div>
+      <div id="auth-spinner" class="login-spinner"><span class="spinner"></span>Connexion en cours...</div>
+
+      <!-- LOGIN -->
+      <div id="form-login">
+        <div class="field" style="margin-bottom:11px"><label>Email</label><input type="email" id="l-email" placeholder="vous@example.com" autocomplete="email"></div>
+        <div class="field" style="margin-bottom:16px"><label>Mot de passe</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">→ Se connecter</button>
+        <div style="text-align:center;margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--text3)">Mot de passe oublié ? <span style="color:var(--accent);cursor:pointer" onclick="doReset()">Réinitialiser</span></div>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="form-register" style="display:none">
+        <div class="field" style="margin-bottom:11px"><label>Nom complet</label><input type="text" id="r-nom" placeholder="Prénom Nom" autocomplete="name"></div>
+        <div class="field" style="margin-bottom:11px"><label>Email</label><input type="email" id="r-email" placeholder="vous@example.com" autocomplete="email"></div>
+        <div class="field" style="margin-bottom:11px"><label>Mot de passe</label><input type="password" id="r-pass" placeholder="Min. 6 caractères" autocomplete="new-password"></div>
+        <div class="field" style="margin-bottom:16px"><label>Rôle demandé</label>
+          <select id="r-role"><option value="technicien">Technicien</option><option value="analyste">Analyste</option></select>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doRegister()">→ Créer le compte</button>
+        <div style="text-align:center;margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--text3)">Un admin devra confirmer votre rôle.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ APP ════════ -->
+<header>
+  <div class="logo">
+    <div class="logo-icon"></div>
+    <div><div class="logo-text">MineLab</div><div class="logo-sub">BY HABATECH</div></div>
+  </div>
+  <div class="hdr-right">
+    <div class="rt-pill"><div class="rt-dot" id="rt-dot"></div><span id="rt-label">offline</span></div>
+    <button class="icon-btn" onclick="openNotifs()"><span>🔔</span><span class="notif-dot" id="notif-dot"></span></button>
+    <button class="icon-btn" onclick="openThemePanel()" title="Thème">🎨</button>
+    <div class="user-chip" onclick="openUserMenu()">
+      <div class="user-avatar" id="u-avatar">?</div>
+      <span class="user-name" id="u-name">...</span>
+      <span class="role-badge" id="u-role-badge"></span>
+    </div>
+  </div>
+</header>
+
+<nav class="top-nav">
+  <button class="nav-btn active" id="nav-dashboard" onclick="showPage('dashboard')">◈ Dashboard</button>
+  <button class="nav-btn" id="nav-echantillons" onclick="showPage('echantillons')">◇ Échantillons <span class="nav-badge" id="nb-ech">0</span></button>
+  <button class="nav-btn" id="nav-analyses" onclick="showPage('analyses')">⊕ Analyses <span class="nav-badge" id="nb-ana">0</span></button>
+  <button class="nav-btn" id="nav-stocks" onclick="showPage('stocks')">▣ Stocks <span class="nav-badge" id="nb-stk">0</span></button>
+  <button class="nav-btn" id="nav-agents" onclick="showPage('agents')">👤 Agents</button>
+  <button class="nav-btn" id="nav-equip" onclick="showPage('equip')">🔧 Équipements</button>
+  <button class="nav-btn" id="nav-journal" onclick="showPage('journal')">📋 Journal</button>
+  <button class="nav-btn locked" id="nav-admin" onclick="showPage('admin')">🔐 Admin</button>
+</nav>
+
+<!-- PAGE: DASHBOARD -->
+<div class="app-main active" id="page-dashboard">
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-val" id="st-ech">—</div><div class="stat-label">Échantillons</div></div>
+    <div class="stat-box orange"><div class="stat-val" id="st-ana">—</div><div class="stat-label">Analyses</div></div>
+    <div class="stat-box green"><div class="stat-val" id="st-usr">—</div><div class="stat-label">Utilisateurs</div></div>
+    <div class="stat-box red"><div class="stat-val" id="st-alr">—</div><div class="stat-label">Alertes</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Échantillons / Minerai</div></div>
+      <div id="chart-min" class="mini-chart"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Tendance résultats</div></div>
+      <svg class="svg-chart" id="svg-trend" viewBox="0 0 300 100" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+  <div class="chart-row">
+    <div class="card">
+      <div class="card-header"><div class="card-title">⚡ Activité récente</div><span class="rt-pill" style="font-size:8px"><span class="rt-dot live"></span>live</span></div>
+      <div id="journal-dash"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">⚠ Alertes</div></div>
+      <div id="alertes-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: ÉCHANTILLONS -->
+<div class="app-main" id="page-echantillons">
+  <div class="card" id="form-ech-card">
+    <div class="card-header"><div class="card-title">Nouvel échantillon</div></div>
+    <div class="form-grid">
+      <div class="field"><label>Code *</label><input type="text" id="e-code" placeholder="ECH-2024-001" autocomplete="off"></div>
+      <div class="field"><label>Date *</label><input type="date" id="e-date"></div>
+      <div class="field"><label>Site *</label><input type="text" id="e-site" placeholder="Zone A..." autocomplete="off"></div>
+      <div class="field"><label>Minerai *</label>
+        <select id="e-minerai"><option value="">— Sélectionner —</option>
+          <option>Or</option><option>Fer</option><option>Cuivre</option><option>Plomb</option>
+          <option>Zinc</option><option>Bauxite</option><option>Manganèse</option><option>Diamant</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="field"><label>Poids (kg)</label><input type="number" id="e-poids" placeholder="0.000" step="0.001" min="0" inputmode="decimal"></div>
+      <div class="field"><label>Profondeur (m)</label><input type="number" id="e-prof" placeholder="0.0" step="0.1" min="0" inputmode="decimal"></div>
+      <div class="field"><label>GPS</label><input type="text" id="e-gps" placeholder="N9.51 E13.75..." autocomplete="off"></div>
+      <div class="field"><label>Préleveur</label><input type="text" id="e-prev" placeholder="Nom..." autocomplete="off"></div>
+      <div class="field"><label>Priorité</label>
+        <select id="e-prio"><option value="Normale">Normale</option><option value="Haute">Haute</option><option value="Urgente">Urgente</option></select>
+      </div>
+      <div class="field"><label>Statut</label>
+        <select id="e-stat"><option value="En attente">En attente</option><option value="En cours">En cours</option><option value="Analysé">Analysé</option><option value="Archivé">Archivé</option></select>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:11px"><label>Observations</label><textarea id="e-obs" placeholder="Description, conditions..."></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEch()">＋ Enregistrer</button>
+      <button class="btn btn-secondary" onclick="clearEchForm()">✕ Effacer</button>
+    </div>
+  </div>
+  <div class="sep">Tous les échantillons <span style="color:var(--text3);font-size:9px;margin-left:4px">(partagés)</span></div>
+  <div class="search-row">
+    <input type="text" id="se-q" placeholder="Rechercher..." oninput="renderEch()">
+    <select id="se-min" onchange="renderEch()"><option value="">Tous minerais</option>
+      <option>Or</option><option>Fer</option><option>Cuivre</option><option>Plomb</option>
+      <option>Zinc</option><option>Bauxite</option><option>Manganèse</option><option>Diamant</option>
+    </select>
+    <select id="se-sta" onchange="renderEch()"><option value="">Tous statuts</option>
+      <option>En attente</option><option>En cours</option><option>Analysé</option><option>Archivé</option>
+    </select>
+  </div>
+  <div class="table-wrap"><table><thead><tr>
+    <th>Code</th><th>Date</th><th>Site</th><th>Minerai</th><th>Poids</th><th>GPS</th><th>Préleveur</th><th>Priorité</th><th>Statut</th><th>Par</th><th></th>
+  </tr></thead><tbody id="tbody-ech"><tr><td colspan="11"><div class="empty-state">Chargement...</div></td></tr></tbody></table></div>
+  <div class="card-list" id="cards-ech"><div class="empty-state">Chargement...</div></div>
+</div>
+
+<!-- PAGE: ANALYSES -->
+<div class="app-main" id="page-analyses">
+  <div class="card" id="form-ana-card">
+    <div class="card-header"><div class="card-title">Nouvelle analyse</div></div>
+    <div class="form-grid">
+      <div class="field"><label>Échantillon *</label><select id="a-ech"><option value="">— Sélectionner —</option></select></div>
+      <div class="field"><label>Date *</label><input type="date" id="a-date"></div>
+      <div class="field"><label>Type</label>
+        <select id="a-type"><option>Spectrométrie XRF</option><option>ICP-MS</option><option>Coupellation</option><option>Voie humide</option><option>Granulométrie</option><option>Microscopie</option><option>Autre</option></select>
+      </div>
+      <div class="field"><label>Analyste</label><input type="text" id="a-anal" placeholder="Nom..."></div>
+      <div class="field"><label>Élément</label><input type="text" id="a-elem" placeholder="Au, Fe2O3..." autocomplete="off"></div>
+      <div class="field"><label>Résultat</label><input type="number" id="a-res" placeholder="0.00" step="0.01" inputmode="decimal"></div>
+      <div class="field"><label>Unité</label>
+        <select id="a-unit"><option value="g/t">g/t</option><option value="%">%</option><option value="ppm">ppm</option><option value="ppb">ppb</option></select>
+      </div>
+      <div class="field"><label>Confiance</label>
+        <select id="a-conf"><option value="Élevé">Élevé</option><option value="Moyen">Moyen</option><option value="Faible">Faible</option></select>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:11px"><label>Remarques</label><textarea id="a-rem" placeholder="Observations..."></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveAna()">＋ Enregistrer</button>
+      <button class="btn btn-secondary" onclick="clearAnaForm()">✕ Effacer</button>
+    </div>
+  </div>
+  <div class="sep">Résultats d'analyses</div>
+  <div class="search-row">
+    <input type="text" id="sa-q" placeholder="Rechercher..." oninput="renderAna()">
+    <select id="sa-type" onchange="renderAna()"><option value="">Tous types</option>
+      <option value="Spectrométrie XRF">XRF</option><option value="ICP-MS">ICP-MS</option>
+    </select>
+  </div>
+  <div class="table-wrap"><table><thead><tr>
+    <th>Échantillon</th><th>Date</th><th>Type</th><th>Élément</th><th>Résultat</th><th>Unité</th><th>Confiance</th><th>Analyste</th><th>Par</th><th></th>
+  </tr></thead><tbody id="tbody-ana"><tr><td colspan="10"><div class="empty-state">Chargement...</div></td></tr></tbody></table></div>
+  <div class="card-list" id="cards-ana"><div class="empty-state">Chargement...</div></div>
+</div>
+
+<!-- PAGE: STOCKS -->
+<div class="app-main" id="page-stocks">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Gestion stock</div></div>
+    <div class="form-grid">
+      <div class="field"><label>Référence *</label><input type="text" id="s-ref" placeholder="REA-001..." autocomplete="off"></div>
+      <div class="field"><label>Désignation *</label><input type="text" id="s-nom" placeholder="Nom..." autocomplete="off"></div>
+      <div class="field"><label>Catégorie</label>
+        <select id="s-cat"><option>Réactif chimique</option><option>Consommable</option><option>Équipement</option><option>EPI</option><option>Autre</option></select>
+      </div>
+      <div class="field"><label>Quantité *</label><input type="number" id="s-qte" placeholder="0" min="0" inputmode="numeric"></div>
+      <div class="field"><label>Unité</label>
+        <select id="s-unit"><option>L</option><option>mL</option><option>kg</option><option>g</option><option>pièce</option><option>boîte</option><option>flacon</option></select>
+      </div>
+      <div class="field"><label>Seuil alerte</label><input type="number" id="s-seuil" placeholder="5" min="0" inputmode="numeric"></div>
+      <div class="field"><label>Péremption</label><input type="date" id="s-per"></div>
+      <div class="field"><label>Fournisseur</label><input type="text" id="s-fourn" placeholder="Nom..." autocomplete="off"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveStk()">＋ Enregistrer</button>
+      <button class="btn btn-secondary" onclick="clearStkForm()">✕ Effacer</button>
+    </div>
+  </div>
+  <div class="sep">Inventaire partagé</div>
+  <div class="search-row">
+    <input type="text" id="ss-q" placeholder="Rechercher..." oninput="renderStk()">
+    <select id="ss-cat" onchange="renderStk()"><option value="">Toutes catégories</option>
+      <option>Réactif chimique</option><option>Consommable</option><option>Équipement</option><option>EPI</option>
+    </select>
+    <select id="ss-alr" onchange="renderStk()"><option value="">Tout</option><option value="alerte">⚠ Alertes</option></select>
+  </div>
+  <div class="table-wrap"><table><thead><tr>
+    <th>Réf.</th><th>Désignation</th><th>Catégorie</th><th>Quantité</th><th>Seuil</th><th>Péremption</th><th>Fournisseur</th><th>État</th><th></th>
+  </tr></thead><tbody id="tbody-stk"><tr><td colspan="9"><div class="empty-state">Chargement...</div></td></tr></tbody></table></div>
+  <div class="card-list" id="cards-stk"><div class="empty-state">Chargement...</div></div>
+</div>
+
+<!-- PAGE: AGENTS -->
+<div class="app-main" id="page-agents">
+  <div class="card" id="form-agt-card">
+    <div class="card-header"><div class="card-title">Nouvel agent</div></div>
+    <div class="form-grid">
+      <div class="field"><label>Nom *</label><input type="text" id="ag-nom" placeholder="Prénom Nom..." autocomplete="off"></div>
+      <div class="field"><label>Matricule *</label><input type="text" id="ag-mat" placeholder="AGT-001..." autocomplete="off"></div>
+      <div class="field"><label>Rôle</label>
+        <select id="ag-role"><option>Analyste</option><option>Technicien</option><option>Préleveur</option><option>Chef</option><option>Autre</option></select>
+      </div>
+      <div class="field"><label>Spécialité</label><input type="text" id="ag-spec" placeholder="XRF, ICP-MS..." autocomplete="off"></div>
+      <div class="field"><label>Téléphone</label><input type="tel" id="ag-tel" placeholder="+224..." inputmode="tel"></div>
+      <div class="field"><label>Statut</label>
+        <select id="ag-stat"><option value="Actif">Actif</option><option value="Congé">En congé</option><option value="Inactif">Inactif</option></select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveAgent()">＋ Enregistrer</button>
+      <button class="btn btn-secondary" onclick="clearAgentForm()">✕ Effacer</button>
+    </div>
+  </div>
+  <div class="sep">Équipe</div>
+  <div class="search-row">
+    <input type="text" id="sag-q" placeholder="Rechercher..." oninput="renderAgents()">
+    <select id="sag-role" onchange="renderAgents()"><option value="">Tous rôles</option>
+      <option>Analyste</option><option>Technicien</option><option>Préleveur</option><option>Chef</option>
+    </select>
+  </div>
+  <div class="table-wrap"><table><thead><tr>
+    <th>Nom</th><th>Matricule</th><th>Rôle</th><th>Spécialité</th><th>Téléphone</th><th>Statut</th><th></th>
+  </tr></thead><tbody id="tbody-agt"><tr><td colspan="7"><div class="empty-state">Chargement...</div></td></tr></tbody></table></div>
+  <div class="card-list" id="cards-agt"><div class="empty-state">Chargement...</div></div>
+</div>
+
+<!-- PAGE: ÉQUIPEMENTS -->
+<div class="app-main" id="page-equip">
+  <div class="card" id="form-eqp-card">
+    <div class="card-header"><div class="card-title">Nouvel équipement</div></div>
+    <div class="form-grid">
+      <div class="field"><label>Référence *</label><input type="text" id="eq-ref" placeholder="EQ-001..." autocomplete="off"></div>
+      <div class="field"><label>Désignation *</label><input type="text" id="eq-nom" placeholder="Spectromètre..." autocomplete="off"></div>
+      <div class="field"><label>Type</label>
+        <select id="eq-type"><option>Analyse</option><option>Prélèvement</option><option>Mesure</option><option>Sécurité</option><option>Autre</option></select>
+      </div>
+      <div class="field"><label>État</label>
+        <select id="eq-etat"><option value="Opérationnel">Opérationnel</option><option value="Maintenance">En maintenance</option><option value="Panne">En panne</option><option value="Hors service">Hors service</option></select>
+      </div>
+      <div class="field"><label>Date acquisition</label><input type="date" id="eq-acq"></div>
+      <div class="field"><label>Prochaine maintenance</label><input type="date" id="eq-maint"></div>
+      <div class="field"><label>Responsable</label><input type="text" id="eq-resp" placeholder="Nom..." autocomplete="off"></div>
+      <div class="field"><label>Localisation</label><input type="text" id="eq-loc" placeholder="Labo A..." autocomplete="off"></div>
+    </div>
+    <div class="field" style="margin-bottom:11px"><label>Notes</label><textarea id="eq-notes" placeholder="Dernière intervention..."></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEquip()">＋ Enregistrer</button>
+      <button class="btn btn-secondary" onclick="clearEquipForm()">✕ Effacer</button>
+    </div>
+  </div>
+  <div class="sep">Parc matériel</div>
+  <div class="search-row">
+    <input type="text" id="seq-q" placeholder="Rechercher..." oninput="renderEquip()">
+    <select id="seq-etat" onchange="renderEquip()"><option value="">Tous états</option>
+      <option>Opérationnel</option><option>Maintenance</option><option>Panne</option>
+    </select>
+  </div>
+  <div class="table-wrap"><table><thead><tr>
+    <th>Réf.</th><th>Désignation</th><th>Type</th><th>État</th><th>Acquisition</th><th>Maintenance</th><th>Responsable</th><th></th>
+  </tr></thead><tbody id="tbody-eqp"><tr><td colspan="8"><div class="empty-state">Chargement...</div></td></tr></tbody></table></div>
+  <div class="card-list" id="cards-eqp"><div class="empty-state">Chargement...</div></div>
+</div>
+
+<!-- PAGE: JOURNAL -->
+<div class="app-main" id="page-journal">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 Journal des actions</div>
+      <span class="rt-pill"><span class="rt-dot live"></span>temps réel</span>
+    </div>
+    <div class="search-row" style="margin-bottom:12px">
+      <input type="text" id="jrn-q" placeholder="Rechercher action, utilisateur..." oninput="renderJournal()">
+      <select id="jrn-usr" onchange="renderJournal()"><option value="">Tous utilisateurs</option></select>
+    </div>
+    <div id="journal-full"></div>
+  </div>
+</div>
+
+<!-- PAGE: ADMIN -->
+<div class="app-main" id="page-admin">
+  <div class="card">
+    <div class="card-header"><div class="card-title">🔐 Gestion des utilisateurs</div></div>
+    <div id="users-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Exports globaux</div></div>
+    <div class="export-row"><div><div class="et">Échantillons (CSV)</div><div class="es">Toutes les données</div></div><button class="btn btn-secondary btn-sm" onclick="exportCSV('ech')">⬇ CSV</button></div>
+    <div class="export-row"><div><div class="et">Analyses (CSV)</div><div class="es">Tous résultats</div></div><button class="btn btn-secondary btn-sm" onclick="exportCSV('ana')">⬇ CSV</button></div>
+    <div class="export-row"><div><div class="et">Stocks (CSV)</div><div class="es">Inventaire complet</div></div><button class="btn btn-secondary btn-sm" onclick="exportCSV('stk')">⬇ CSV</button></div>
+    <div class="export-row"><div><div class="et">Journal (CSV)</div><div class="es">Toutes les actions</div></div><button class="btn btn-secondary btn-sm" onclick="exportCSV('jrn')">⬇ CSV</button></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-btn active" id="bnav-dashboard" onclick="showPage('dashboard')"><span class="icon">◈</span><span>Home</span></button>
+    <button class="bnav-btn" id="bnav-echantillons" onclick="showPage('echantillons')"><span class="icon">◇</span><span>Échant.</span><span class="bnav-bdg" id="bb-ech">0</span></button>
+    <button class="bnav-btn" id="bnav-analyses" onclick="showPage('analyses')"><span class="icon">⊕</span><span>Analyses</span><span class="bnav-bdg" id="bb-ana">0</span></button>
+    <button class="bnav-btn" id="bnav-stocks" onclick="showPage('stocks')"><span class="icon">▣</span><span>Stocks</span><span class="bnav-bdg" id="bb-stk">0</span></button>
+    <button class="bnav-btn" id="bnav-journal" onclick="showPage('journal')"><span class="icon">📋</span><span>Journal</span></button>
+  </div>
+</div>
+
+<!-- MODAL: User Menu -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <div class="modal-title">Mon compte<button class="modal-close" onclick="closeModal('userModal')">✕</button></div>
+    <div id="user-details" style="margin-bottom:16px"></div>
+    <div class="btn-row">
+      <button class="btn btn-danger" onclick="doLogout()">⎋ Se déconnecter</button>
+      <button class="btn btn-secondary" onclick="closeModal('userModal')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Notifications -->
+<div class="modal-overlay" id="notifModal">
+  <div class="modal">
+    <div class="modal-title">🔔 Notifications<button class="modal-close" onclick="closeModal('notifModal')">✕</button></div>
+    <div id="notif-list"></div>
+  </div>
+</div>
+
+<!-- MODAL: QR -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal">
+    <div class="modal-title">📱 Code QR<button class="modal-close" onclick="closeModal('qrModal')">✕</button></div>
+    <div id="qr-container" style="display:flex;justify-content:center;padding:16px;background:#fff;border-radius:var(--r);margin:12px 0"></div>
+    <div id="qr-info" style="text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2)"></div>
+    <div class="btn-row" style="margin-top:12px"><button class="btn btn-secondary" onclick="window.print()">🖨 Imprimer</button></div>
+  </div>
+</div>
+
+<!-- THEME PANEL -->
+<div class="theme-panel" id="themePanel">
+  <div class="theme-inner">
+    <h3>🎨 Thème<button onclick="closeThemePanel()" style="background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer">✕</button></h3>
+    <div class="theme-grid" id="themeGrid"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  SUPABASE CLIENT
+// ══════════════════════════════════════════════════
+let supa = null;
+let currentUser = null;
+let currentProfile = null;
+let realtimeSubs = [];
+
+// Local cache
+let E=[],A=[],S=[],AG=[],EQ=[],JRN=[];
+let NOTIFS=[];
+
+const { createClient } = supabase;
+
+// ── Config Supabase ──
+function getSupaConfig(){
+  const u=localStorage.getItem('ml_supa_url');
+  const k=localStorage.getItem('ml_supa_key');
+  return (u&&k)?{url:u,key:k}:null;
+}
+function saveSupaConfig(){
+  const url=document.getElementById('cfg-url').value.trim();
+  const key=document.getElementById('cfg-key').value.trim();
+  if(!url||!key){showAuthError('URL et clé requis');return;}
+  localStorage.setItem('ml_supa_url',url);
+  localStorage.setItem('ml_supa_key',key);
+  initSupabase(url,key);
+}
+function initSupabase(url,key){
+  try{
+    supa=createClient(url,key);
+    document.getElementById('supa-config-block').style.display='none';
+    document.getElementById('auth-block').style.display='block';
+    checkSession();
+  }catch(e){showAuthError('Erreur init Supabase: '+e.message);}
+}
+
+// ── Credentials Supabase (pré-configurés) ──
+const SUPA_URL = 'https://ubzuxtwkjddtqvbgfeok.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVienV4dHdramRkdHF2YmdmZW9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMjU4MzIsImV4cCI6MjA4OTgwMTgzMn0.mGpKOo5n-WtpyTTVViRFcuI0QB2PoQwTlKdpgfGSI_Y';
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded',()=>{
+  applyTheme(localStorage.getItem('ml_theme')||'mine');
+  // Connexion automatique avec les credentials pré-configurés
+  localStorage.setItem('ml_supa_url', SUPA_URL);
+  localStorage.setItem('ml_supa_key', SUPA_KEY);
+  document.getElementById('cfg-url').value = SUPA_URL;
+  document.getElementById('cfg-key').value = SUPA_KEY;
+  initSupabase(SUPA_URL, SUPA_KEY);
+  const t=new Date().toISOString().split('T')[0];
+  document.getElementById('e-date').value=t;
+  document.getElementById('a-date').value=t;
+});
+
+// ══════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════
+function switchTab(tab){
+  document.getElementById('tab-login').classList.toggle('active',tab==='login');
+  document.getElementById('tab-register').classList.toggle('active',tab==='register');
+  document.getElementById('form-login').style.display=tab==='login'?'block':'none';
+  document.getElementById('form-register').style.display=tab==='register'?'block':'none';
+  hideAuthError();
+}
+function showAuthError(msg){const el=document.getElementById('auth-error');el.textContent=msg;el.style.display='block';}
+function hideAuthError(){document.getElementById('auth-error').style.display='none';}
+function setAuthLoading(v){
+  document.getElementById('auth-spinner').style.display=v?'block':'none';
+  document.getElementById('form-login').style.opacity=v?.5:1;
+  document.getElementById('form-register').style.opacity=v?.5:1;
+}
+
+async function checkSession(){
+  const {data:{session}}=await supa.auth.getSession();
+  if(session){await onLogin(session.user);return;}
+  supa.auth.onAuthStateChange((_,sess)=>{if(sess)onLogin(sess.user);else onLogout();});
+}
+
+async function doLogin(){
+  const email=document.getElementById('l-email').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  if(!email||!pass){showAuthError('Email et mot de passe requis');return;}
+  hideAuthError();setAuthLoading(true);
+  const {data,error}=await supa.auth.signInWithPassword({email,password:pass});
+  setAuthLoading(false);
+  if(error){showAuthError(error.message);return;}
+  await onLogin(data.user);
+}
+
+async function doRegister(){
+  const nom=document.getElementById('r-nom').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const pass=document.getElementById('r-pass').value;
+  const role=document.getElementById('r-role').value;
+  if(!nom||!email||!pass){showAuthError('Tous les champs sont requis');return;}
+  if(pass.length<6){showAuthError('Mot de passe trop court (min. 6)');return;}
+  hideAuthError();setAuthLoading(true);
+  const {data,error}=await supa.auth.signUp({
+    email,password:pass,
+    options:{data:{nom,role}}
+  });
+  setAuthLoading(false);
+  if(error){showAuthError(error.message);return;}
+  showAuthError('✔ Compte créé ! Vérifiez votre email pour confirmer.');
+  document.getElementById('auth-error').style.borderColor='var(--accent2)';
+  document.getElementById('auth-error').style.color='var(--accent2)';
+  document.getElementById('auth-error').style.display='block';
+}
+
+async function doReset(){
+  const email=document.getElementById('l-email').value.trim();
+  if(!email){showAuthError('Entrez votre email d\'abord');return;}
+  const{error}=await supa.auth.resetPasswordForEmail(email);
+  if(error)showAuthError(error.message);
+  else showAuthError('✔ Email de réinitialisation envoyé');
+}
+
+async function onLogin(user){
+  currentUser=user;
+  // Load profile
+  const{data}=await supa.from('profiles').select('*').eq('id',user.id).single();
+  currentProfile=data||{nom:user.email,role:'technicien',email:user.email};
+  // Hide login
+  document.getElementById('login-screen').style.display='none';
+  // Update header
+  updateUserHeader();
+  // Apply role permissions
+  applyRoleUI();
+  // Load data + realtime
+  await loadAllData();
+  subscribeRealtime();
+  // Log
+  await addJournal('Connexion','Utilisateur connecté','🔑');
+}
+
+function onLogout(){
+  currentUser=null;currentProfile=null;
+  document.getElementById('login-screen').style.display='flex';
+  setRTStatus(false);
+  realtimeSubs.forEach(s=>supa.removeChannel(s));
+  realtimeSubs=[];
+}
+
+async function doLogout(){
+  await addJournal('Déconnexion','Utilisateur déconnecté','⎋');
+  await supa.auth.signOut();
+  closeModal('userModal');
+  onLogout();
+}
+
+function updateUserHeader(){
+  if(!currentProfile)return;
+  const init=(currentProfile.nom||'?')[0].toUpperCase();
+  document.getElementById('u-avatar').textContent=init;
+  document.getElementById('u-name').textContent=(currentProfile.nom||'').split(' ')[0];
+  const rb=document.getElementById('u-role-badge');
+  rb.textContent=currentProfile.role;
+  rb.className='role-badge rb-'+currentProfile.role;
+}
+
+function applyRoleUI(){
+  const role=currentProfile?.role||'technicien';
+  const isAdmin=role==='admin';
+  const isAnalyste=role==='admin'||role==='analyste';
+  // Admin nav
+  const adminBtn=document.getElementById('nav-admin');
+  if(adminBtn){adminBtn.classList.toggle('locked',!isAdmin);if(isAdmin)adminBtn.classList.remove('locked');}
+  // Forms visibility
+  ['form-ech-card','form-ana-card','form-agt-card','form-eqp-card'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display=isAnalyste?'block':'none';
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  REALTIME
+// ══════════════════════════════════════════════════
+function subscribeRealtime(){
+  const tables=['echantillons','analyses','stocks','agents','equipements','journal'];
+  tables.forEach(table=>{
+    const ch=supa.channel('rt-'+table)
+      .on('postgres_changes',{event:'*',schema:'public',table},(payload)=>{
+        handleRealtimeChange(table,payload);
+      }).subscribe((status)=>{
+        if(status==='SUBSCRIBED')setRTStatus(true);
+      });
+    realtimeSubs.push(ch);
+  });
+}
+
+function handleRealtimeChange(table,payload){
+  const{eventType,new:nw,old:od}=payload;
+  const flash=()=>{document.querySelectorAll('.app-main.active .card').forEach(c=>{c.style.transition='border-color .3s';c.style.borderColor='var(--accent2)';setTimeout(()=>c.style.borderColor='',600);});};
+  if(table==='echantillons'){
+    if(eventType==='INSERT'){E.unshift(nw);flash();}
+    else if(eventType==='UPDATE'){const i=E.findIndex(x=>x.id===nw.id);if(i>=0)E[i]=nw;}
+    else if(eventType==='DELETE'){E=E.filter(x=>x.id!==od.id);}
+    renderEch();updateDashboard();badges();
+  } else if(table==='analyses'){
+    if(eventType==='INSERT'){A.unshift(nw);}
+    else if(eventType==='DELETE'){A=A.filter(x=>x.id!==od.id);}
+    renderAna();updateDashboard();
+  } else if(table==='stocks'){
+    if(eventType==='INSERT')S.unshift(nw);
+    else if(eventType==='UPDATE'){const i=S.findIndex(x=>x.id===nw.id);if(i>=0)S[i]=nw;}
+    else if(eventType==='DELETE')S=S.filter(x=>x.id!==od.id);
+    renderStk();updateDashboard();
+  } else if(table==='agents'){
+    if(eventType==='INSERT')AG.unshift(nw);
+    else if(eventType==='DELETE')AG=AG.filter(x=>x.id!==od.id);
+    renderAgents();
+  } else if(table==='equipements'){
+    if(eventType==='INSERT')EQ.unshift(nw);
+    else if(eventType==='UPDATE'){const i=EQ.findIndex(x=>x.id===nw.id);if(i>=0)EQ[i]=nw;}
+    else if(eventType==='DELETE')EQ=EQ.filter(x=>x.id!==od.id);
+    renderEquip();
+  } else if(table==='journal'){
+    if(eventType==='INSERT'&&nw.user_id!==currentUser?.id){
+      JRN.unshift(nw);renderJournal();renderJournalDash();
+      addLocalNotif('👤 '+nw.user_nom,nw.action+' — '+nw.detail,'info');
+    }
+  }
+}
+
+function setRTStatus(live){
+  const dot=document.getElementById('rt-dot');
+  const lbl=document.getElementById('rt-label');
+  if(dot){dot.className='rt-dot'+(live?' live':'');}
+  if(lbl)lbl.textContent=live?'live':'offline';
+}
+
+// ══════════════════════════════════════════════════
+//  DATA LOADING
+// ══════════════════════════════════════════════════
+async function loadAllData(){
+  try{
+    const[eRes,aRes,sRes,agRes,eqRes,jRes]=await Promise.all([
+      supa.from('echantillons').select('*').order('created_at',{ascending:false}),
+      supa.from('analyses').select('*').order('created_at',{ascending:false}),
+      supa.from('stocks').select('*').order('nom'),
+      supa.from('agents').select('*').order('nom'),
+      supa.from('equipements').select('*').order('nom'),
+      supa.from('journal').select('*').order('created_at',{ascending:false}).limit(100)
+    ]);
+    E=eRes.data||[];A=aRes.data||[];S=sRes.data||[];
+    AG=agRes.data||[];EQ=eqRes.data||[];JRN=jRes.data||[];
+    renderAll();
+    loadUsers();
+  }catch(err){toast('⚠ Erreur chargement: '+err.message,'err');}
+}
+
+function renderAll(){renderEch();renderAna();renderStk();renderAgents();renderEquip();renderJournal();updateDashboard();badges();populateEchSelect();}
+
+// ══════════════════════════════════════════════════
+//  JOURNAL
+// ══════════════════════════════════════════════════
+async function addJournal(action,detail,icon='📝',table_name='',record_id=''){
+  if(!currentUser||!supa)return;
+  const entry={user_id:currentUser.id,user_email:currentUser.email,user_nom:currentProfile?.nom||currentUser.email,action,detail,icon,table_name,record_id};
+  JRN.unshift({...entry,created_at:new Date().toISOString()});
+  renderJournal();renderJournalDash();
+  await supa.from('journal').insert(entry).catch(()=>{});
+}
+
+function renderJournalDash(){
+  const el=document.getElementById('journal-dash');if(!el)return;
+  el.innerHTML=JRN.slice(0,6).map(j=>`
+    <div class="jrn-item">
+      <span class="jrn-icon">${j.icon||'📝'}</span>
+      <div class="jrn-body">
+        <div class="jb-action">${j.action}${j.detail?' — <span style="color:var(--text2)">'+j.detail+'</span>':''}</div>
+        <div><span class="jb-user">@${j.user_nom||j.user_email||'?'}</span> <span class="jb-time">${fmtDate(j.created_at)}</span></div>
+      </div>
+    </div>`).join('')||`<div class="empty-state">Aucune activité</div>`;
+}
+
+function renderJournal(){
+  const q=document.getElementById('jrn-q')?.value.toLowerCase()||'';
+  const u=document.getElementById('jrn-usr')?.value||'';
+  // Populate user filter
+  const users=[...new Set(JRN.map(j=>j.user_nom||j.user_email).filter(Boolean))];
+  const sel=document.getElementById('jrn-usr');
+  if(sel){const cur=sel.value;sel.innerHTML='<option value="">Tous utilisateurs</option>'+users.map(u=>`<option value="${u}">${u}</option>`).join('');sel.value=cur;}
+  const list=JRN.filter(j=>{
+    if(u&&(j.user_nom||j.user_email)!==u)return false;
+    if(q&&!`${j.action} ${j.detail} ${j.user_nom} ${j.user_email}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  document.getElementById('journal-full').innerHTML=list.map(j=>`
+    <div class="jrn-item">
+      <span class="jrn-icon">${j.icon||'📝'}</span>
+      <div class="jrn-body">
+        <div class="jb-action">${j.action}${j.detail?' — <span style="color:var(--text2)">'+j.detail+'</span>':''}</div>
+        <div><span class="jb-user">@${j.user_nom||j.user_email||'?'}</span> <span class="jb-time">${fmtDate(j.created_at)}</span></div>
+      </div>
+    </div>`).join('')||`<div class="empty-state">Aucune entrée</div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════
+function updateDashboard(){
+  const alr=S.filter(s=>parseFloat(s.qte)<=parseFloat(s.seuil)&&parseFloat(s.seuil)>0).length
+    +EQ.filter(e=>e.etat==='Panne').length;
+  document.getElementById('st-ech').textContent=E.length;
+  document.getElementById('st-ana').textContent=A.length;
+  document.getElementById('st-alr').textContent=alr;
+
+  const cnt={};E.forEach(e=>{cnt[e.minerai]=(cnt[e.minerai]||0)+1;});
+  const maxV=Math.max(...Object.values(cnt),1);
+  const clr={Or:'orange',Fer:'green'};
+  document.getElementById('chart-min').innerHTML=
+    Object.entries(cnt).map(([m,v])=>`<div class="bar ${clr[m]||''}" style="height:${Math.max(5,(v/maxV)*42)}px" title="${m}:${v}"></div>`).join('')
+    ||`<span style="color:var(--text3);font-size:11px;font-family:var(--mono)">Aucune donnée</span>`;
+
+  const svgEl=document.getElementById('svg-trend');
+  const recent=A.filter(a=>a.resultat>0).slice(0,20);
+  if(recent.length>1){
+    const vals=recent.map(a=>parseFloat(a.resultat));
+    const mn=Math.min(...vals),mx=Math.max(...vals);
+    const pts=vals.map((v,i)=>`${10+(i/(vals.length-1))*280},${90-((v-mn)/(mx-mn||1))*70}`).join(' ');
+    svgEl.innerHTML=`<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+      ${recent.map((a,i)=>{const x=10+(i/(recent.length-1))*280;const y=90-((a.resultat-mn)/(mx-mn||1))*70;return`<circle cx="${x}" cy="${y}" r="3" fill="var(--accent)" opacity=".8"><title>${a.echantillon_code}: ${a.resultat} ${a.unite}</title></circle>`}).join('')}`;
+  } else {
+    svgEl.innerHTML=`<text x="150" y="55" text-anchor="middle" fill="var(--text3)" font-size="11" font-family="monospace">Données insuffisantes</text>`;
+  }
+  renderJournalDash();
+
+  const alStk=S.filter(s=>parseFloat(s.qte)<=parseFloat(s.seuil)&&s.seuil>0)
+    .map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px"><span style="color:var(--accent4)">⚠ Stock: ${s.nom}</span><span style="font-family:var(--mono);font-size:10px">${s.qte}/${s.seuil} ${s.unite}</span></div>`);
+  const alEqp=EQ.filter(e=>e.etat==='Panne')
+    .map(e=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:4px"><span style="color:var(--accent4)">🔧 Panne: ${e.nom}</span><span style="font-family:var(--mono);font-size:10px">${e.ref}</span></div>`);
+  document.getElementById('alertes-list').innerHTML=[...alStk,...alEqp].join('')||`<div style="color:var(--accent2);font-family:var(--mono);font-size:11px;padding:8px 0">✔ Aucune alerte active</div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  BADGES & NAV
+// ══════════════════════════════════════════════════
+function badges(){
+  document.getElementById('nb-ech').textContent=E.length;
+  document.getElementById('nb-ana').textContent=A.length;
+  const alr=S.filter(s=>parseFloat(s.qte)<=parseFloat(s.seuil)&&s.seuil>0).length;
+  document.getElementById('nb-stk').textContent=S.length+(alr?' ⚠':'');
+  ['bb-ech','bb-ana','bb-stk'].forEach((id,i)=>{
+    const v=[E.length,A.length,alr][i];
+    const el=document.getElementById(id);if(el){el.textContent=v;el.style.display=v?'flex':'none';}
+  });
+}
+
+function showPage(p){
+  const role=currentProfile?.role||'technicien';
+  if(p==='admin'&&role!=='admin'){toast('⛔ Accès réservé à l\'admin','err');return;}
+  document.querySelectorAll('.app-main').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn,.bnav-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  ['nav-','bnav-'].forEach(pfx=>{const el=document.getElementById(pfx+p);if(el)el.classList.add('active');});
+  if(p==='analyses')populateEchSelect();
+  if(p==='journal')renderJournal();
+  if(p==='admin')loadUsers();
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════════
+//  ÉCHANTILLONS
+// ══════════════════════════════════════════════════
+async function saveEch(){
+  const code=document.getElementById('e-code').value.trim();
+  const date=document.getElementById('e-date').value;
+  const site=document.getElementById('e-site').value.trim();
+  const minerai=document.getElementById('e-minerai').value;
+  if(!code||!date||!site||!minerai){toast('⚠ Champs obligatoires manquants','err');return;}
+  const row={code,date,site,minerai,
+    poids:parseFloat(document.getElementById('e-poids').value)||0,
+    profondeur:parseFloat(document.getElementById('e-prof').value)||0,
+    gps:document.getElementById('e-gps').value.trim(),
+    preleveur:document.getElementById('e-prev').value.trim(),
+    priorite:document.getElementById('e-prio').value,
+    statut:document.getElementById('e-stat').value,
+    obs:document.getElementById('e-obs').value.trim(),
+    created_by:currentUser.id};
+  const{error}=await supa.from('echantillons').insert(row);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Échantillon créé',code,'◇','echantillons');
+  clearEchForm();toast('✔ Échantillon '+code+' enregistré');
+}
+function clearEchForm(){
+  ['e-code','e-site','e-poids','e-prof','e-gps','e-prev','e-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('e-minerai').value='';
+  document.getElementById('e-stat').value='En attente';
+  document.getElementById('e-prio').value='Normale';
+}
+async function delEch(id){
+  if(!confirm('Supprimer ?'))return;
+  const ech=E.find(e=>e.id===id);
+  const{error}=await supa.from('echantillons').delete().eq('id',id);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Échantillon supprimé',ech?.code||'','🗑','echantillons',id);
+  toast('Supprimé','warn');
+}
+function showQR(id){
+  const ech=E.find(e=>e.id===id);if(!ech)return;
+  document.getElementById('qr-container').innerHTML='';
+  document.getElementById('qr-info').textContent=ech.code+' — '+ech.minerai+' ('+ech.date+')';
+  try{new QRCode(document.getElementById('qr-container'),{text:JSON.stringify({code:ech.code,site:ech.site,minerai:ech.minerai,date:ech.date,gps:ech.gps}),width:180,height:180,colorDark:'#000',colorLight:'#fff'});}
+  catch(e){document.getElementById('qr-container').innerHTML='<div style="padding:20px;font-family:var(--mono);font-size:12px;color:#333">'+ech.code+'</div>';}
+  document.getElementById('qrModal').classList.add('open');
+}
+const MTAG={Or:'tag-or',Fer:'tag-fe',Cuivre:'tag-cu',Plomb:'tag-pb',Zinc:'tag-zn'};
+const SCLS={'En attente':'status-warn','En cours':'','Analysé':'status-ok','Archivé':'status-err'};
+const PCLS={Urgente:'status-err',Haute:'status-warn',Normale:''};
+function renderEch(){
+  const q=document.getElementById('se-q')?.value.toLowerCase()||'';
+  const fm=document.getElementById('se-min')?.value||'';
+  const fs=document.getElementById('se-sta')?.value||'';
+  const list=E.filter(e=>{
+    if(fm&&e.minerai!==fm)return false;
+    if(fs&&e.statut!==fs)return false;
+    if(q&&!`${e.code} ${e.site} ${e.minerai} ${e.preleveur||''}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  document.getElementById('tbody-ech').innerHTML=list.length
+    ?list.map(e=>`<tr>
+      <td><span class="id-tag">${e.code}</span></td>
+      <td style="font-family:var(--mono);font-size:10px">${e.date}</td>
+      <td>${e.site}${e.gps?'<br><span style="font-size:9px;color:var(--text3);font-family:var(--mono)">'+e.gps+'</span>':''}</td>
+      <td><span class="tag ${MTAG[e.minerai]||'tag-cu'}">${e.minerai}</span></td>
+      <td style="font-family:var(--mono)">${e.poids>0?parseFloat(e.poids).toFixed(3):'—'}</td>
+      <td style="font-family:var(--mono);font-size:9px;color:var(--text2)">${e.gps||'—'}</td>
+      <td style="font-size:11px">${e.preleveur||'—'}</td>
+      <td><span class="${PCLS[e.priorite]||''}" style="font-family:var(--mono);font-size:10px">${e.priorite||'Normale'}</span></td>
+      <td><span class="${SCLS[e.statut]||''}">${e.statut}</span></td>
+      <td style="font-family:var(--mono);font-size:9px;color:var(--accent2)">${getCreatorName(e.created_by)}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-info btn-sm" onclick="showQR('${e.id}')">📱</button>
+        <button class="btn btn-danger btn-sm" onclick="delEch('${e.id}')">✕</button>
+      </td></tr>`).join('')
+    :`<tr><td colspan="11"><div class="empty-state">Aucun résultat</div></td></tr>`;
+
+  document.getElementById('cards-ech').innerHTML=list.length
+    ?list.map(e=>`<div class="card-item">
+      <div class="ci-head"><span class="id-tag">${e.code}</span><span class="tag ${MTAG[e.minerai]||'tag-cu'}">${e.minerai}</span></div>
+      <div class="ci-body">
+        <div class="ci-f"><div class="lbl">Site</div><div class="val">${e.site}</div></div>
+        <div class="ci-f"><div class="lbl">Date</div><div class="val" style="font-family:var(--mono);font-size:11px">${e.date}</div></div>
+        <div class="ci-f"><div class="lbl">Poids</div><div class="val">${e.poids>0?parseFloat(e.poids).toFixed(3)+' kg':'—'}</div></div>
+        <div class="ci-f"><div class="lbl">Statut</div><div class="val"><span class="${SCLS[e.statut]||''}">${e.statut}</span></div></div>
+        <div class="ci-f"><div class="lbl">Par</div><div class="val" style="font-family:var(--mono);font-size:10px;color:var(--accent2)">${getCreatorName(e.created_by)}</div></div>
+        <div class="ci-f"><div class="lbl">Priorité</div><div class="val"><span class="${PCLS[e.priorite]||''}" style="font-size:11px">${e.priorite||'Normale'}</span></div></div>
+      </div>
+      <div class="ci-actions">
+        <button class="btn btn-info btn-sm" onclick="showQR('${e.id}')">📱 QR</button>
+        <button class="btn btn-danger btn-sm" onclick="delEch('${e.id}')">✕</button>
+      </div></div>`).join('')
+    :`<div class="empty-state">Aucun résultat</div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  ANALYSES
+// ══════════════════════════════════════════════════
+function populateEchSelect(){
+  const sel=document.getElementById('a-ech');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Sélectionner —</option>'+E.map(e=>`<option value="${e.id}">${e.code} — ${e.minerai}</option>`).join('');
+  sel.value=cur;
+}
+async function saveAna(){
+  const eid=document.getElementById('a-ech').value;
+  const date=document.getElementById('a-date').value;
+  if(!eid||!date){toast('⚠ Sélectionnez un échantillon et une date','err');return;}
+  const ech=E.find(e=>e.id===eid);
+  const row={echantillon_id:eid,echantillon_code:ech?.code||'?',date,
+    type:document.getElementById('a-type').value,
+    analyste:document.getElementById('a-anal').value.trim(),
+    element:document.getElementById('a-elem').value.trim(),
+    resultat:parseFloat(document.getElementById('a-res').value)||0,
+    unite:document.getElementById('a-unit').value,
+    confiance:document.getElementById('a-conf').value,
+    remarques:document.getElementById('a-rem').value.trim(),
+    created_by:currentUser.id};
+  const{error}=await supa.from('analyses').insert(row);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  if(ech)await supa.from('echantillons').update({statut:'Analysé'}).eq('id',eid);
+  await addJournal('Analyse enregistrée',`${ech?.code||'?'} — ${row.element} ${row.resultat} ${row.unite}`,'⊕','analyses');
+  clearAnaForm();toast('✔ Analyse enregistrée');
+}
+function clearAnaForm(){
+  ['a-anal','a-elem','a-res','a-rem'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a-ech').value='';
+}
+async function delAna(id){
+  if(!confirm('Supprimer ?'))return;
+  const{error}=await supa.from('analyses').delete().eq('id',id);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Analyse supprimée','','🗑','analyses',id);
+  toast('Supprimé','warn');
+}
+function renderAna(){
+  const q=document.getElementById('sa-q')?.value.toLowerCase()||'';
+  const ft=document.getElementById('sa-type')?.value||'';
+  const list=A.filter(a=>{
+    if(ft&&a.type!==ft)return false;
+    if(q&&!`${a.echantillon_code} ${a.element} ${a.analyste} ${a.type}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  const cCls={Élevé:'status-ok',Moyen:'status-warn',Faible:'status-err'};
+  document.getElementById('tbody-ana').innerHTML=list.length
+    ?list.map(a=>`<tr>
+      <td><span class="id-tag">${a.echantillon_code}</span></td>
+      <td style="font-family:var(--mono);font-size:10px">${a.date}</td>
+      <td style="font-size:11px">${a.type}</td>
+      <td style="font-family:var(--mono);color:var(--accent)">${a.element||'—'}</td>
+      <td style="font-family:var(--mono);font-size:15px;font-weight:bold">${a.resultat||'—'}</td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--text2)">${a.unite}</td>
+      <td><span class="${cCls[a.confiance]||''}" style="font-size:10px">${a.confiance||'—'}</span></td>
+      <td style="font-size:11px">${a.analyste||'—'}</td>
+      <td style="font-family:var(--mono);font-size:9px;color:var(--accent2)">${getCreatorName(a.created_by)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delAna('${a.id}')">✕</button></td>
+    </tr>`).join('')
+    :`<tr><td colspan="10"><div class="empty-state">Aucune analyse</div></td></tr>`;
+
+  document.getElementById('cards-ana').innerHTML=list.length
+    ?list.map(a=>`<div class="card-item">
+      <div class="ci-head"><span class="id-tag">${a.echantillon_code}</span><span style="font-size:10px;color:var(--text2)">${a.type}</span></div>
+      <div class="ci-body">
+        <div class="ci-f"><div class="lbl">Date</div><div class="val" style="font-family:var(--mono);font-size:11px">${a.date}</div></div>
+        <div class="ci-f"><div class="lbl">Analyste</div><div class="val">${a.analyste||'—'}</div></div>
+        <div class="ci-f"><div class="lbl">Élément</div><div class="val" style="color:var(--accent);font-family:var(--mono)">${a.element||'—'}</div></div>
+        <div class="ci-f"><div class="lbl">Résultat</div><div class="val" style="font-family:var(--mono);font-size:17px;font-weight:bold">${a.resultat||'—'} <span style="font-size:9px;color:var(--text2)">${a.unite}</span></div></div>
+        <div class="ci-f"><div class="lbl">Par</div><div class="val" style="font-family:var(--mono);font-size:10px;color:var(--accent2)">${getCreatorName(a.created_by)}</div></div>
+      </div>
+      <div class="ci-actions"><button class="btn btn-danger btn-sm" onclick="delAna('${a.id}')">✕ Supprimer</button></div>
+    </div>`).join('')
+    :`<div class="empty-state">Aucune analyse</div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  STOCKS
+// ══════════════════════════════════════════════════
+async function saveStk(){
+  const ref=document.getElementById('s-ref').value.trim();
+  const nom=document.getElementById('s-nom').value.trim();
+  const qte=parseFloat(document.getElementById('s-qte').value);
+  if(!ref||!nom||isNaN(qte)){toast('⚠ Référence, nom, quantité requis','err');return;}
+  const row={ref,nom,categorie:document.getElementById('s-cat').value,qte,
+    unite:document.getElementById('s-unit').value,
+    seuil:parseFloat(document.getElementById('s-seuil').value)||0,
+    peremption:document.getElementById('s-per').value||null,
+    fournisseur:document.getElementById('s-fourn').value.trim(),
+    created_by:currentUser.id};
+  const ex=S.find(s=>s.ref===ref);
+  let error;
+  if(ex){({error}=await supa.from('stocks').update(row).eq('id',ex.id));await addJournal('Stock mis à jour',ref,'▣','stocks');}
+  else{({error}=await supa.from('stocks').insert(row));await addJournal('Article ajouté au stock',ref,'▣','stocks');}
+  if(error){toast('⚠ '+error.message,'err');return;}
+  clearStkForm();toast(ex?'✔ Mis à jour : '+ref:'✔ Article '+ref+' ajouté');
+}
+function clearStkForm(){
+  ['s-ref','s-nom','s-qte','s-seuil','s-fourn'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('s-per').value='';
+  document.getElementById('s-cat').value='Réactif chimique';
+  document.getElementById('s-unit').value='L';
+}
+async function delStk(id){
+  if(!confirm('Supprimer ?'))return;
+  const{error}=await supa.from('stocks').delete().eq('id',id);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Article supprimé du stock','','🗑','stocks',id);
+  toast('Supprimé','warn');
+}
+function editStk(id){
+  const s=S.find(x=>x.id===id);if(!s)return;
+  document.getElementById('s-ref').value=s.ref;document.getElementById('s-nom').value=s.nom;
+  document.getElementById('s-cat').value=s.categorie;document.getElementById('s-qte').value=s.qte;
+  document.getElementById('s-unit').value=s.unite;document.getElementById('s-seuil').value=s.seuil;
+  document.getElementById('s-per').value=s.peremption||'';document.getElementById('s-fourn').value=s.fournisseur||'';
+  showPage('stocks');window.scrollTo(0,0);
+}
+function renderStk(){
+  const q=document.getElementById('ss-q')?.value.toLowerCase()||'';
+  const fc=document.getElementById('ss-cat')?.value||'';
+  const fa=document.getElementById('ss-alr')?.value||'';
+  const today=new Date().toISOString().split('T')[0];
+  const list=S.filter(s=>{
+    if(fc&&s.categorie!==fc)return false;
+    if(fa==='alerte'&&parseFloat(s.qte)>parseFloat(s.seuil))return false;
+    if(q&&!`${s.ref} ${s.nom} ${s.fournisseur||''}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  document.getElementById('tbody-stk').innerHTML=list.length
+    ?list.map(s=>{const pct=s.seuil>0?Math.min(100,(s.qte/(s.seuil*3))*100):100;const bc=pct<33?'red':pct<66?'orange':'';const exp=s.peremption&&s.peremption<today;const ok=s.qte<=s.seuil&&s.seuil>0?'<span class="status-err">⚠ Bas</span>':'<span class="status-ok">✔ OK</span>';
+      return `<tr><td><span class="id-tag">${s.ref}</span></td><td>${s.nom}</td><td style="font-size:10px;color:var(--text2)">${s.categorie}</td>
+        <td><b style="font-family:var(--mono)">${s.qte}</b> <span style="font-size:9px;color:var(--text2)">${s.unite}</span><div class="progress-bar"><div class="progress-fill ${bc}" style="width:${pct}%"></div></div></td>
+        <td style="font-family:var(--mono);font-size:10px">${s.seuil} ${s.unite}</td>
+        <td style="font-family:var(--mono);font-size:10px;${exp?'color:var(--accent4)':''}">${s.peremption||'—'}${exp?' ⚠':''}</td>
+        <td style="font-size:11px">${s.fournisseur||'—'}</td><td>${ok}</td>
+        <td style="white-space:nowrap"><button class="btn btn-secondary btn-sm" onclick="editStk('${s.id}')">✎</button> <button class="btn btn-danger btn-sm" onclick="delStk('${s.id}')">✕</button></td></tr>`;
+    }).join(''):`<tr><td colspan="9"><div class="empty-state">Aucun article</div></td></tr>`;
+
+  document.getElementById('cards-stk').innerHTML=list.length
+    ?list.map(s=>{const pct=s.seuil>0?Math.min(100,(s.qte/(s.seuil*3))*100):100;const bc=pct<33?'red':pct<66?'orange':'';const exp=s.peremption&&s.peremption<today;const ok=s.qte<=s.seuil&&s.seuil>0?'<span class="status-err">⚠ Bas</span>':'<span class="status-ok">✔ OK</span>';
+      return `<div class="card-item"><div class="ci-head"><span class="id-tag">${s.ref}</span>${ok}</div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:7px">${s.nom}</div>
+        <div class="ci-body">
+          <div class="ci-f"><div class="lbl">Qté / Seuil</div><div class="val" style="font-family:var(--mono);font-size:16px;font-weight:bold">${s.qte} <span style="font-size:9px;color:var(--text2)">${s.unite}</span></div><div class="progress-bar"><div class="progress-fill ${bc}" style="width:${pct}%"></div></div></div>
+          <div class="ci-f"><div class="lbl">Péremption</div><div class="val" style="font-size:11px;${exp?'color:var(--accent4)':''}">${s.peremption||'—'}${exp?' ⚠':''}</div></div>
+        </div>
+        <div class="ci-actions"><button class="btn btn-secondary btn-sm" onclick="editStk('${s.id}')">✎</button><button class="btn btn-danger btn-sm" onclick="delStk('${s.id}')">✕</button></div></div>`;
+    }).join(''):`<div class="empty-state">Aucun article</div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  AGENTS
+// ══════════════════════════════════════════════════
+async function saveAgent(){
+  const nom=document.getElementById('ag-nom').value.trim();
+  const matricule=document.getElementById('ag-mat').value.trim();
+  if(!nom||!matricule){toast('⚠ Nom et matricule requis','err');return;}
+  const row={nom,matricule,role:document.getElementById('ag-role').value,
+    specialite:document.getElementById('ag-spec').value.trim(),
+    tel:document.getElementById('ag-tel').value.trim(),
+    statut:document.getElementById('ag-stat').value,
+    created_by:currentUser.id};
+  const{error}=await supa.from('agents').insert(row);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Agent enregistré',nom,'👤','agents');
+  clearAgentForm();toast('✔ Agent '+nom+' enregistré');
+}
+function clearAgentForm(){
+  ['ag-nom','ag-mat','ag-spec','ag-tel'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ag-role').value='Analyste';document.getElementById('ag-stat').value='Actif';
+}
+async function delAgent(id){
+  if(!confirm('Supprimer ?'))return;
+  const{error}=await supa.from('agents').delete().eq('id',id);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Agent supprimé','','🗑');toast('Supprimé','warn');
+}
+const RCLS={Analyste:'ar-analyste',Technicien:'ar-technicien',Préleveur:'ar-preleveur',Chef:'ar-chef'};
+function renderAgents(){
+  const q=document.getElementById('sag-q')?.value.toLowerCase()||'';
+  const fr=document.getElementById('sag-role')?.value||'';
+  const list=AG.filter(a=>{
+    if(fr&&a.role!==fr)return false;
+    if(q&&!`${a.nom} ${a.matricule} ${a.role} ${a.specialite||''}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  document.getElementById('tbody-agt').innerHTML=list.length
+    ?list.map(a=>`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div style="width:30px;height:30px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;color:var(--accent)">${a.nom[0]}</div>${a.nom}</div></td>
+      <td><span class="id-tag">${a.matricule}</span></td>
+      <td><span class="agent-role ${RCLS[a.role]||''}" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:2px">${a.role}</span></td>
+      <td style="font-size:11px">${a.specialite||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px">${a.tel||'—'}</td>
+      <td><span class="${a.statut==='Actif'?'status-ok':a.statut==='Congé'?'status-warn':'status-err'}">${a.statut}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="delAgent('${a.id}')">✕</button></td>
+    </tr>`).join(''):`<tr><td colspan="7"><div class="empty-state">Aucun agent</div></td></tr>`;
+
+  document.getElementById('cards-agt').innerHTML=list.length
+    ?list.map(a=>`<div class="card-item">
+      <div class="ci-head">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;font-size:14px;color:var(--accent)">${a.nom[0]}</div>
+          <div><div style="font-weight:600;font-size:14px">${a.nom}</div><span class="id-tag" style="font-size:9px">${a.matricule}</span></div>
+        </div>
+        <span style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:2px;background:rgba(184,224,74,.1);color:var(--accent);border:1px solid rgba(184,224,74,.2)">${a.role}</span>
+      </div>
+      <div class="ci-body">
+        <div class="ci-f"><div class="lbl">Spécialité</div><div class="val" style="font-size:12px">${a.specialite||'—'}</div></div>
+        <div class="ci-f"><div class="lbl">Tél</div><div class="val" style="font-family:var(--mono);font-size:11px">${a.tel||'—'}</div></div>
+        <div class="ci-f"><div class="lbl">Statut</div><div class="val"><span class="${a.statut==='Actif'?'status-ok':a.statut==='Congé'?'status-warn':'status-err'}">${a.statut}</span></div></div>
+      </div>
+      <div class="ci-actions"><button class="btn btn-danger btn-sm" onclick="delAgent('${a.id}')">✕ Retirer</button></div>
+    </div>`).join(''):`<div class="empty-state">Aucun agent</div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  ÉQUIPEMENTS
+// ══════════════════════════════════════════════════
+async function saveEquip(){
+  const ref=document.getElementById('eq-ref').value.trim();
+  const nom=document.getElementById('eq-nom').value.trim();
+  if(!ref||!nom){toast('⚠ Référence et désignation requises','err');return;}
+  const row={ref,nom,type:document.getElementById('eq-type').value,
+    etat:document.getElementById('eq-etat').value,
+    date_acq:document.getElementById('eq-acq').value||null,
+    date_maint:document.getElementById('eq-maint').value||null,
+    responsable:document.getElementById('eq-resp').value.trim(),
+    localisation:document.getElementById('eq-loc').value.trim(),
+    notes:document.getElementById('eq-notes').value.trim(),
+    created_by:currentUser.id};
+  const ex=EQ.find(e=>e.ref===ref);
+  let error;
+  if(ex){({error}=await supa.from('equipements').update(row).eq('id',ex.id));}
+  else{({error}=await supa.from('equipements').insert(row));}
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Équipement '+(ex?'mis à jour':'ajouté'),nom,'🔧','equipements');
+  clearEquipForm();toast('✔ Équipement enregistré');
+}
+function clearEquipForm(){
+  ['eq-ref','eq-nom','eq-acq','eq-maint','eq-resp','eq-loc','eq-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('eq-type').value='Analyse';document.getElementById('eq-etat').value='Opérationnel';
+}
+async function delEquip(id){
+  if(!confirm('Supprimer ?'))return;
+  const{error}=await supa.from('equipements').delete().eq('id',id);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Équipement supprimé','','🗑');toast('Supprimé','warn');
+}
+function editEquip(id){
+  const eq=EQ.find(x=>x.id===id);if(!eq)return;
+  document.getElementById('eq-ref').value=eq.ref;document.getElementById('eq-nom').value=eq.nom;
+  document.getElementById('eq-type').value=eq.type;document.getElementById('eq-etat').value=eq.etat;
+  document.getElementById('eq-acq').value=eq.date_acq||'';document.getElementById('eq-maint').value=eq.date_maint||'';
+  document.getElementById('eq-resp').value=eq.responsable||'';document.getElementById('eq-loc').value=eq.localisation||'';
+  document.getElementById('eq-notes').value=eq.notes||'';
+  showPage('equip');window.scrollTo(0,0);
+}
+function renderEquip(){
+  const q=document.getElementById('seq-q')?.value.toLowerCase()||'';
+  const fe=document.getElementById('seq-etat')?.value||'';
+  const today=new Date().toISOString().split('T')[0];
+  const list=EQ.filter(e=>{
+    if(fe&&e.etat!==fe)return false;
+    if(q&&!`${e.ref} ${e.nom} ${e.type} ${e.responsable||''}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  const eCls={Opérationnel:'status-ok',Maintenance:'status-warn',Panne:'status-err','Hors service':'status-err'};
+  document.getElementById('tbody-eqp').innerHTML=list.length
+    ?list.map(e=>`<tr>
+      <td><span class="id-tag">${e.ref}</span></td><td>${e.nom}</td>
+      <td style="font-size:11px;color:var(--text2)">${e.type}</td>
+      <td><span class="${eCls[e.etat]||''}">${e.etat}</span></td>
+      <td style="font-family:var(--mono);font-size:10px">${e.date_acq||'—'}</td>
+      <td style="font-family:var(--mono);font-size:10px;${e.date_maint&&e.date_maint<=today?'color:var(--accent3)':''}">${e.date_maint||'—'}${e.date_maint&&e.date_maint<=today?' ⚠':''}</td>
+      <td style="font-size:11px">${e.responsable||'—'}</td>
+      <td style="white-space:nowrap"><button class="btn btn-secondary btn-sm" onclick="editEquip('${e.id}')">✎</button> <button class="btn btn-danger btn-sm" onclick="delEquip('${e.id}')">✕</button></td>
+    </tr>`).join(''):`<tr><td colspan="8"><div class="empty-state">Aucun équipement</div></td></tr>`;
+
+  document.getElementById('cards-eqp').innerHTML=list.length
+    ?list.map(e=>{const md=e.date_maint&&e.date_maint<=today;return`<div class="card-item">
+      <div class="ci-head"><span class="id-tag">${e.ref}</span><span class="${eCls[e.etat]||''}">${e.etat}</span></div>
+      <div style="font-weight:600;font-size:13px;margin-bottom:7px">${e.nom}</div>
+      <div class="ci-body">
+        <div class="ci-f"><div class="lbl">Type</div><div class="val" style="font-size:12px">${e.type}</div></div>
+        <div class="ci-f"><div class="lbl">Localisation</div><div class="val" style="font-size:12px">${e.localisation||'—'}</div></div>
+        <div class="ci-f"><div class="lbl">Responsable</div><div class="val" style="font-size:12px">${e.responsable||'—'}</div></div>
+        <div class="ci-f"><div class="lbl">Maintenance</div><div class="val" style="font-family:var(--mono);font-size:10px;${md?'color:var(--accent3)':''}">${e.date_maint||'—'}${md?' ⚠':''}</div></div>
+      </div>
+      <div class="ci-actions"><button class="btn btn-secondary btn-sm" onclick="editEquip('${e.id}')">✎</button><button class="btn btn-danger btn-sm" onclick="delEquip('${e.id}')">✕</button></div>
+    </div>`}).join(''):`<div class="empty-state">Aucun équipement</div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  ADMIN: GESTION UTILISATEURS
+// ══════════════════════════════════════════════════
+async function loadUsers(){
+  if(currentProfile?.role!=='admin')return;
+  const{data,error}=await supa.from('profiles').select('*').order('created_at');
+  if(error||!data)return;
+  document.getElementById('st-usr').textContent=data.filter(u=>u.actif).length;
+  document.getElementById('users-list').innerHTML=data.map(u=>`
+    <div class="user-row">
+      <div class="ua-avatar">${(u.nom||u.email||'?')[0].toUpperCase()}</div>
+      <div class="ua-info">
+        <div class="ua-name">${u.nom||'—'}</div>
+        <div class="ua-email">${u.email}</div>
+      </div>
+      <select onchange="changeUserRole('${u.id}',this.value)" style="width:110px;font-size:12px;padding:5px 8px;min-height:32px">
+        <option value="technicien"${u.role==='technicien'?' selected':''}>Technicien</option>
+        <option value="analyste"${u.role==='analyste'?' selected':''}>Analyste</option>
+        <option value="admin"${u.role==='admin'?' selected':''}>Admin</option>
+      </select>
+      <span class="role-badge rb-${u.role}" style="font-family:var(--mono);font-size:9px;padding:3px 7px;border-radius:2px">${u.role}</span>
+    </div>`).join('');
+}
+async function changeUserRole(uid,role){
+  const{error}=await supa.from('profiles').update({role}).eq('id',uid);
+  if(error){toast('⚠ '+error.message,'err');return;}
+  await addJournal('Rôle modifié','Utilisateur → '+role,'🔐');
+  toast('✔ Rôle mis à jour');
+  loadUsers();
+}
+
+// ══════════════════════════════════════════════════
+//  NOTIFICATIONS LOCALES
+// ══════════════════════════════════════════════════
+function addLocalNotif(title,msg,type){
+  NOTIFS.unshift({title,msg,type,at:new Date().toISOString()});
+  document.getElementById('notif-dot').style.display='block';
+}
+function openNotifs(){
+  document.getElementById('notif-dot').style.display='none';
+  document.getElementById('notif-list').innerHTML=NOTIFS.length
+    ?NOTIFS.map(n=>`<div style="display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)">
+        <div style="width:9px;height:9px;border-radius:50%;background:${n.type==='err'?'var(--accent4)':n.type==='warn'?'var(--accent3)':'var(--accent2)'};flex-shrink:0;margin-top:3px"></div>
+        <div><div style="font-size:12px"><b>${n.title}</b>: ${n.msg}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3)">${fmtDate(n.at)}</div></div>
+      </div>`).join('')
+    :`<div class="empty-state">Aucune notification</div>`;
+  document.getElementById('notifModal').classList.add('open');
+}
+function openUserMenu(){
+  document.getElementById('user-details').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="width:50px;height:50px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:900;font-size:22px;color:var(--bg)">${(currentProfile?.nom||'?')[0].toUpperCase()}</div>
+      <div><div style="font-weight:700;font-size:16px">${currentProfile?.nom||'—'}</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text2)">${currentUser?.email}</div>
+      <span class="role-badge rb-${currentProfile?.role}">${currentProfile?.role}</span></div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">Connecté depuis: ${fmtDate(currentUser?.last_sign_in_at)}</div>`;
+  document.getElementById('userModal').classList.add('open');
+}
+
+// ══════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════
+function getCreatorName(uid){
+  if(!uid)return'—';
+  if(uid===currentUser?.id)return'moi';
+  return uid.slice(0,6)+'…';
+}
+function fmtDate(iso){return iso?iso.slice(0,16).replace('T',' '):'—';}
+
+function exportCSV(type){
+  let h,rows,fn;
+  const d=new Date().toISOString().slice(0,10);
+  if(type==='ech'){h=['Code','Date','Site','Minerai','Poids','Profondeur','GPS','Preleveur','Priorite','Statut'];rows=E.map(e=>[e.code,e.date,e.site,e.minerai,e.poids,e.profondeur,e.gps,e.preleveur,e.priorite,e.statut]);}
+  else if(type==='ana'){h=['Echantillon','Date','Type','Element','Resultat','Unite','Confiance','Analyste'];rows=A.map(a=>[a.echantillon_code,a.date,a.type,a.element,a.resultat,a.unite,a.confiance,a.analyste]);}
+  else if(type==='stk'){h=['Reference','Designation','Categorie','Quantite','Unite','Seuil','Peremption','Fournisseur'];rows=S.map(s=>[s.ref,s.nom,s.categorie,s.qte,s.unite,s.seuil,s.peremption,s.fournisseur]);}
+  else if(type==='jrn'){h=['Date','Utilisateur','Email','Action','Detail','Table'];rows=JRN.map(j=>[j.created_at,j.user_nom,j.user_email,j.action,j.detail,j.table_name]);}
+  const csv=[h,...rows].map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join('\t')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`minelab_${type}_${d}.csv`;a.click();
+  toast('✔ Export CSV effectué');
+}
+
+// ══ MODAL ══
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+
+// ══ TOAST ══
+function toast(m,t='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=m;
+  el.style.borderColor=t==='ok'?'var(--accent)':t==='warn'?'var(--accent3)':'var(--accent4)';
+  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+// ══ THEMES ══
+const THEMES=[
+  {id:'mine',name:'Mine',desc:'Vert industriel',icon:'🟢',bg:'#0d0f0e',surface:'#141714',accent:'#b8e04a',accent2:'#5be0a0'},
+  {id:'cobalt',name:'Cobalt',desc:'Bleu profond',icon:'🔵',bg:'#080c14',surface:'#0e1422',accent:'#4db8ff',accent2:'#38e8c0'},
+  {id:'gold',name:'Gold',desc:'Luxe ambré',icon:'🟡',bg:'#0c0a06',surface:'#15120a',accent:'#d4a017',accent2:'#e8c840'},
+  {id:'slate',name:'Slate',desc:'Gris acier',icon:'⚪',bg:'#0a0c10',surface:'#111418',accent:'#7ab4e8',accent2:'#50d890'},
+  {id:'ruby',name:'Ruby',desc:'Rouge passion',icon:'🔴',bg:'#0e0808',surface:'#180e0e',accent:'#ff6b6b',accent2:'#ff9966'},
+  {id:'arctic',name:'Arctic',desc:'Clair épuré',icon:'❄️',bg:'#f0f4f8',surface:'#ffffff',accent:'#0066cc',accent2:'#00aa66'},
+];
+let currentTheme='mine';
+function applyTheme(id){
+  currentTheme=id||'mine';
+  document.documentElement.setAttribute('data-theme',currentTheme);
+  localStorage.setItem('ml_theme',currentTheme);
+  const t=THEMES.find(x=>x.id===currentTheme);
+  if(t)document.querySelector('meta[name="theme-color"]').setAttribute('content',t.bg);
+}
+function renderThemeGrid(){
+  document.getElementById('themeGrid').innerHTML=THEMES.map(t=>`
+    <div class="theme-card${currentTheme===t.id?' selected':''}" onclick="applyTheme('${t.id}');closeThemePanel();"
+      style="background:${t.bg};border-color:${currentTheme===t.id?t.accent:'rgba(255,255,255,.1)'}">
+      <div class="theme-preview">
+        <div class="tp-dot" style="background:${t.accent}"></div>
+        <div class="tp-dot" style="background:${t.accent2}"></div>
+        <div class="tp-dot" style="background:${t.bg};border:2px solid ${t.accent}44"></div>
+      </div>
+      <div class="theme-name" style="color:${t.accent}">${t.icon} ${t.name}</div>
+      <div class="theme-desc" style="color:${t.accent}bb">${t.desc}</div>
+    </div>`).join('');
+}
+function openThemePanel(){renderThemeGrid();document.getElementById('themePanel').classList.add('open');}
+function closeThemePanel(){document.getElementById('themePanel').classList.remove('open');}
+document.getElementById('themePanel').addEventListener('click',function(e){if(e.target===this)closeThemePanel();});
+</script>
+
+<!-- FOOTER DÉVELOPPEUR (desktop) -->
+<footer class="dev-footer">
+  <div class="dev-footer-inner">
+    <div class="dev-brand">
+      <div class="db-hex"></div>
+      <div>
+        <div class="db-name">HabaTech</div>
+        <div class="db-tag">Développé par HabaTech — Solutions numériques</div>
+      </div>
+    </div>
+    <div class="dev-contact">
+      <a class="dev-wa" href="https://wa.me/224627541925" target="_blank" rel="noopener">
+        <span class="wa-icon">💬</span>
+        <span>WhatsApp +224 627 541 925</span>
+      </a>
+      <div class="dev-copy">MineLab Pro v3.0 © 2025</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
